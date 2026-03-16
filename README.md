@@ -96,4 +96,4 @@ Then registration should be successful
 
 ## Author
 
-Sai Teja
+Thirumandas SaiTeja Goud
