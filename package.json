@@ -1,0 +1,18 @@
+{
+  "name": "typescript-framework-root",
+  "private": true,
+  "scripts": {
+    "setup": "npm --prefix playwright-bdd-framework run setup",
+    "test": "npm --prefix playwright-bdd-framework run test",
+    "test:one": "npm --prefix playwright-bdd-framework run test:one",
+    "test:report": "npm --prefix playwright-bdd-framework run test:report",
+    "test:report:no-open": "npm --prefix playwright-bdd-framework run test:report:no-open",
+    "report": "npm --prefix playwright-bdd-framework run report",
+    "report:generate": "npm --prefix playwright-bdd-framework run report:generate",
+    "report:open": "npm --prefix playwright-bdd-framework run report:open",
+    "lint": "npm --prefix playwright-bdd-framework run lint",
+    "lint:fix": "npm --prefix playwright-bdd-framework run lint:fix",
+    "format": "npm --prefix playwright-bdd-framework run format",
+    "format:check": "npm --prefix playwright-bdd-framework run format:check"
+  }
+}

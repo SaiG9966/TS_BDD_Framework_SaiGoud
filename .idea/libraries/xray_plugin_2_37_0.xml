@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="xray-plugin-2.37.0">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/playwright-bdd-framework/node_modules/allure-commandline/dist/plugins/xray-plugin/xray-plugin-2.37.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

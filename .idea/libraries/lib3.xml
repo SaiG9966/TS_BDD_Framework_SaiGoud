@@ -1,0 +1,18 @@
+<component name="libraryTable">
+  <library name="lib3">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/playwright-bdd-framework/node_modules/allure-commandline/dist/plugins/xray-plugin/lib/okio-jvm-3.16.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/playwright-bdd-framework/node_modules/allure-commandline/dist/plugins/xray-plugin/lib/retrofit-3.0.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/playwright-bdd-framework/node_modules/allure-commandline/dist/plugins/xray-plugin/lib/jackson-annotations-2.21.jar!/" />
+      <root url="jar://$PROJECT_DIR$/playwright-bdd-framework/node_modules/allure-commandline/dist/plugins/xray-plugin/lib/jackson-core-2.21.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/playwright-bdd-framework/node_modules/allure-commandline/dist/plugins/xray-plugin/lib/okhttp-jvm-5.3.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/playwright-bdd-framework/node_modules/allure-commandline/dist/plugins/xray-plugin/lib/jackson-databind-2.21.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/playwright-bdd-framework/node_modules/allure-commandline/dist/plugins/xray-plugin/lib/converter-jackson-3.0.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/playwright-bdd-framework/node_modules/allure-commandline/dist/plugins/xray-plugin/lib/annotations-13.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/playwright-bdd-framework/node_modules/allure-commandline/dist/plugins/xray-plugin/lib/kotlin-stdlib-2.2.21.jar!/" />
+      <root url="jar://$PROJECT_DIR$/playwright-bdd-framework/node_modules/allure-commandline/dist/plugins/xray-plugin/lib/allure-jira-commons-2.37.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

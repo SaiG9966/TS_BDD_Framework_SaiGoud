@@ -1,0 +1,22 @@
+{
+  "cucumber.features": [
+    "playwright-bdd-framework/src/tests/features/**/*.feature"
+  ],
+  "cucumber.glue": [
+    "playwright-bdd-framework/src/tests/stepDefinitions/**/*.ts",
+    "playwright-bdd-framework/src/tests/stepDefinitions/**/*.js",
+    "playwright-bdd-framework/src/tests/hooks/**/*.ts",
+    "playwright-bdd-framework/src/tests/support/**/*.ts"
+  ],
+  "cucumberautocomplete.steps": [
+    "playwright-bdd-framework/src/tests/stepDefinitions/**/*.ts",
+    "playwright-bdd-framework/src/tests/stepDefinitions/**/*.js",
+    "playwright-bdd-framework/src/tests/support/**/*.ts",
+    "playwright-bdd-framework/src/tests/hooks/**/*.ts"
+  ],
+  "cucumberautocomplete.syncfeatures": "playwright-bdd-framework/src/tests/features/**/*.feature",
+  "cucumberautocomplete.features": "playwright-bdd-framework/src/tests/features/**/*.feature",
+  "cucumberautocomplete.strictGherkinCompletion": true,
+  "cucumberautocomplete.strictGherkinValidation": false,
+  "cucumberautocomplete.smartSnippets": true
+}

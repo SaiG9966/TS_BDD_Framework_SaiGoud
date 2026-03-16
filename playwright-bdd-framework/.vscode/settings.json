@@ -1,0 +1,22 @@
+{
+  "cucumber.features": [
+    "src/tests/features/**/*.feature"
+  ],
+  "cucumber.glue": [
+    "src/tests/stepDefinitions/**/*.ts",
+    "src/tests/stepDefinitions/**/*.js",
+    "src/tests/hooks/**/*.ts",
+    "src/tests/support/**/*.ts"
+  ],
+  "cucumberautocomplete.steps": [
+    "src/tests/stepDefinitions/**/*.ts",
+    "src/tests/stepDefinitions/**/*.js",
+    "src/tests/support/**/*.ts",
+    "src/tests/hooks/**/*.ts"
+  ],
+  "cucumberautocomplete.syncfeatures": "src/tests/features/**/*.feature",
+  "cucumberautocomplete.features": "src/tests/features/**/*.feature",
+  "cucumberautocomplete.strictGherkinCompletion": true,
+  "cucumberautocomplete.strictGherkinValidation": false,
+  "cucumberautocomplete.smartSnippets": true
+}
