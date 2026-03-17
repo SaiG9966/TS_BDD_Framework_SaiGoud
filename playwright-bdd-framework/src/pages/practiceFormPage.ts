@@ -21,6 +21,8 @@ export class PracticeFormPage extends PlaywrightActions {
   cityDropdown = "#city";
   submitButton = "#submit";
   successTitle = "#example-modal-sizes-title-lg";
+  modalContainer = "div[role='dialog'][aria-labelledby='example-modal-sizes-title-lg']";
+  closeModalButton = "#closeLargeModal";
   sportsHobbyInput = "#hobbies-checkbox-1";
   readingHobbyInput = "#hobbies-checkbox-2";
   musicHobbyInput = "#hobbies-checkbox-3";
@@ -58,7 +60,31 @@ export class PracticeFormPage extends PlaywrightActions {
 
   async enterSubject(subject: string) {
     await this.fillText(this.subjectInput, subject);
+    const suggestion = this.page.locator(".subjects-auto-complete__option").first();
+
+    if (await suggestion.isVisible().catch(() => false)) {
+      await suggestion.click();
+      return;
+    }
+
+    // Fallback when suggestion list is not rendered in time
     await this.page.keyboard.press("Enter");
+  }
+
+  private async closeSubmissionModalIfOpen() {
+    const modal = this.page.locator(this.modalContainer);
+    if (!(await modal.isVisible().catch(() => false))) {
+      return;
+    }
+
+    const closeBtn = this.page.locator(this.closeModalButton);
+    if (await closeBtn.isVisible().catch(() => false)) {
+      await closeBtn.click({ force: true });
+    } else {
+      await this.page.keyboard.press("Escape");
+    }
+
+    await modal.waitFor({ state: "hidden", timeout: this.runtime.navigationTimeoutMs }).catch(() => {});
   }
 
   async selectHobby(hobby: string) {
@@ -124,11 +150,13 @@ export class PracticeFormPage extends PlaywrightActions {
   }
 
   async selectState(state: string) {
+    await this.closeSubmissionModalIfOpen();
     await this.click(this.stateDropdown);
     await this.click(`//div[text()='${state}']`);
   }
 
   async selectCity(city: string) {
+    await this.closeSubmissionModalIfOpen();
     await this.click(this.cityDropdown);
     await this.click(`//div[text()='${city}']`);
   }
