@@ -1,0 +1,73 @@
+# ================================
+# Node.js / npm
+# ================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# ================================
+# TypeScript build output
+# ================================
+dist/
+build/
+*.js.map
+*.d.ts.map
+
+# ================================
+# Playwright test artifacts
+# ================================
+test-results/
+playwright-report/
+*.webm
+*.png
+*.jpeg
+*.jpg
+*.mp4
+
+# ================================
+# Reports (generated, not source)
+# ================================
+allure-results/
+allure-report/
+reports/Screenshots
+reports/html-report/
+reports/videos/
+reports/cucumber-report.json
+
+# ================================
+# IDE / Editor files
+# ================================
+.idea/
+# .vscode/ is intentionally tracked (shared project settings)
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ================================
+# Environment / Secrets
+# ================================
+.env
+.env.local
+.env.*.local
+
+# ================================
+# OS files
+# ================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ================================
+# Misc
+# ================================
+*.log
+*.tmp
+*.cache
+coverage/
+.nyc_output/
+picture.png
+register_button.png
