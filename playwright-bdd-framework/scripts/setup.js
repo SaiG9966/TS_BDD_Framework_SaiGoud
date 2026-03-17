@@ -90,34 +90,28 @@ function installPlaywrightBrowsers() {
       ? ["chromium"]
       : [];
 
-  const installArgs = ["playwright", "install", ...browserTargets];
+  const installArgs = ["exec", "playwright", "install", ...browserTargets];
 
   // Try `--with-deps` only on non-Windows hosts (Linux/macOS).
   // On Windows this option is not applicable and causes unnecessary failures.
-  const npxCmd = isWindows ? "npx.cmd" : "npx";
-
-  console.log("\n=== Install Playwright browsers ===");
-  const primaryArgs = isWindows ? installArgs : [...installArgs, "--with-deps"];
-  const result = spawnSync(npxCmd, primaryArgs, {
-    cwd: frameworkRoot,
-    stdio: "inherit",
-    shell: false
-  });
-
-  if (result.status !== 0) {
+  try {
+    const primaryArgs = isWindows ? installArgs : [...installArgs, "--with-deps"];
+    runNpm(primaryArgs, frameworkRoot, "Install Playwright browsers");
+    return;
+  } catch (firstError) {
     if (!isWindows) {
       console.warn("⚠️  --with-deps failed (may need admin/sudo). Retrying without --with-deps...");
     } else {
       console.warn("⚠️  Playwright install failed on first attempt. Retrying once...");
     }
 
-    const fallback = spawnSync(npxCmd, installArgs, {
-      cwd: frameworkRoot,
-      stdio: "inherit",
-      shell: false
-    });
-    if (fallback.status !== 0) {
-      throw new Error(`Playwright browser installation failed with exit code ${fallback.status ?? 1}`);
+    try {
+      runNpm(installArgs, frameworkRoot, "Install Playwright browsers (retry)");
+      return;
+    } catch (secondError) {
+      throw new Error(
+        `Playwright browser installation failed after retry. First error: ${firstError.message}. Retry error: ${secondError.message}`
+      );
     }
   }
 }
