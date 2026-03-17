@@ -36,6 +36,11 @@ pipeline {
     CI = 'true'
     BROWSER = 'chromium'
     HEADLESS = 'true'
+    MAXIMIZE_BROWSER = 'false'
+    SLOW_MO = '0'
+    HIGHLIGHT_ELEMENTS = 'true'
+    ALLOW_MANUAL_VERIFICATION = 'false'
+    PRACTICE_FORM_PICTURE = 'picture.png'
     SCREENSHOT_ON_FAILURE = 'true'
     ATTACH_SCREENSHOTS = 'true'
     RECORD_VIDEO = 'true'
@@ -79,12 +84,18 @@ pipeline {
       steps {
         script {
           if (isUnix()) {
+            sh "cd ${env.FRAMEWORK_DIR} && cp -f .env.example .env"
             if (params.RUN_SETUP) {
               sh "cd ${env.FRAMEWORK_DIR} && npm run setup"
             } else {
               sh "cd ${env.FRAMEWORK_DIR} && npm ci"
             }
           } else {
+            bat """
+              @echo on
+              cd /d %WORKSPACE%\\${env.FRAMEWORK_DIR}
+              copy /Y .env.example .env
+            """
             if (params.RUN_SETUP) {
               bat """
                 @echo on
