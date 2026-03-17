@@ -35,9 +35,11 @@ pipeline {
     FRAMEWORK_DIR = 'playwright-bdd-framework'
     CI = 'true'
     BROWSER = 'chromium'
+    HEADLESS = 'true'
     PLAYWRIGHT_INSTALL_BROWSERS = 'chromium'
     PLAYWRIGHT_BROWSERS_PATH = '0'
     SKIP_PLAYWRIGHT_INSTALL = 'true'
+    TEST_EXIT_CODE = '0'
   }
 
   stages {
@@ -69,19 +71,28 @@ pipeline {
     }
 
     stage('Install / Setup') {
-      when {
-        expression { return params.RUN_SETUP }
-      }
       steps {
         script {
           if (isUnix()) {
-            sh "cd ${env.FRAMEWORK_DIR} && npm run setup"
+            if (params.RUN_SETUP) {
+              sh "cd ${env.FRAMEWORK_DIR} && npm run setup"
+            } else {
+              sh "cd ${env.FRAMEWORK_DIR} && npm ci"
+            }
           } else {
-            bat """
-              @echo on
-              cd /d %WORKSPACE%\\${env.FRAMEWORK_DIR}
-              npm run setup
-            """
+            if (params.RUN_SETUP) {
+              bat """
+                @echo on
+                cd /d %WORKSPACE%\\${env.FRAMEWORK_DIR}
+                npm run setup
+              """
+            } else {
+              bat """
+                @echo on
+                cd /d %WORKSPACE%\\${env.FRAMEWORK_DIR}
+                npm ci
+              """
+            }
           }
         }
       }
@@ -92,15 +103,28 @@ pipeline {
         script {
           def extra = params.EXTRA_ARGS?.trim()
           def cmd = "npm run ${params.TEST_COMMAND}" + (extra ? " -- ${extra}" : "")
+          int exitCode = 0
 
           if (isUnix()) {
-            sh "cd ${env.FRAMEWORK_DIR} && ${cmd}"
+            exitCode = sh(
+              script: "cd ${env.FRAMEWORK_DIR} && ${cmd}",
+              returnStatus: true
+            )
           } else {
-            bat """
-              @echo on
-              cd /d %WORKSPACE%\\${env.FRAMEWORK_DIR}
-              ${cmd}
-            """
+            exitCode = bat(
+              script: """
+                @echo on
+                cd /d %WORKSPACE%\\${env.FRAMEWORK_DIR}
+                ${cmd}
+                exit /b %errorlevel%
+              """,
+              returnStatus: true
+            )
+          }
+
+          env.TEST_EXIT_CODE = exitCode.toString()
+          if (exitCode != 0) {
+            echo "Tests finished with non-zero exit code: ${exitCode}. Continuing to report generation."
           }
         }
       }
@@ -126,6 +150,16 @@ pipeline {
             }
           } catch (err) {
             echo "Report generation skipped/failed: ${err}"
+          }
+        }
+      }
+    }
+
+    stage('Finalize Build Result') {
+      steps {
+        script {
+          if ((env.TEST_EXIT_CODE ?: '0') != '0') {
+            error("Test stage failed with exit code ${env.TEST_EXIT_CODE}")
           }
         }
       }
