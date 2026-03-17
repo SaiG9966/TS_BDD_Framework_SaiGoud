@@ -11,12 +11,12 @@ const frameworkRoot = path.resolve(__dirname, "..");
 const npmCli = process.env.npm_execpath || null;
 const isWindows = process.platform === "win32";
 
-function run(command, args, cwd, title) {
+function run(command, args, cwd, title, useShell = false) {
   console.log(`\n=== ${title} ===`);
   const result = spawnSync(command, args, {
     cwd,
     stdio: "inherit",
-    shell: true  // shell:true ensures npm/node are found on PATH in all environments (VS Code, CI, editors)
+    shell: useShell
   });
 
   if (result.error) {
@@ -30,12 +30,13 @@ function run(command, args, cwd, title) {
 
 function runNpm(args, cwd, title) {
   if (npmCli) {
-    // Running via `npm run setup` — use node + npm_execpath for reliability
-    run(process.execPath, [npmCli, ...args], cwd, title);
+    // Running via `npm run setup` — use node + npm_execpath for reliability.
+    // Keep shell=false so paths with spaces (e.g., C:\Program Files\...) are handled safely.
+    run(process.execPath, [npmCli, ...args], cwd, title, false);
   } else {
     // Fallback: run npm directly (works in VS Code terminals, CI, direct invocations)
     const npmCmd = isWindows ? "npm.cmd" : "npm";
-    run(npmCmd, args, cwd, title);
+    run(npmCmd, args, cwd, title, false);
   }
 }
 
@@ -60,7 +61,7 @@ function checkJava() {
   const result = spawnSync("java", ["-version"], {
     cwd: frameworkRoot,
     stdio: "pipe",
-    shell: true
+    shell: false
   });
 
   if (result.status !== 0) {
@@ -81,7 +82,7 @@ function installPlaywrightBrowsers() {
   const result = spawnSync(npxCmd, ["playwright", "install", "--with-deps"], {
     cwd: frameworkRoot,
     stdio: "inherit",
-    shell: true
+    shell: false
   });
 
   if (result.status !== 0) {
@@ -89,7 +90,7 @@ function installPlaywrightBrowsers() {
     const fallback = spawnSync(npxCmd, ["playwright", "install"], {
       cwd: frameworkRoot,
       stdio: "inherit",
-      shell: true
+      shell: false
     });
     if (fallback.status !== 0) {
       throw new Error(`Playwright browser installation failed with exit code ${fallback.status ?? 1}`);
