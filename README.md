@@ -90,7 +90,7 @@ Then registration should be successful
 
 ## GitHub Repository
 
-`https://github.com/SaiG9966/Typescript_Framework_BDD_saiteja.git`
+https://github.com/SaiG9966/TS_BDD_Framework_SaiGoud
 
 ---
 
