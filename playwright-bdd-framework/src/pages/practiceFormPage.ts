@@ -21,6 +21,9 @@ export class PracticeFormPage extends PlaywrightActions {
   cityDropdown = "#city";
   submitButton = "#submit";
   successTitle = "#example-modal-sizes-title-lg";
+  sportsHobbyInput = "#hobbies-checkbox-1";
+  readingHobbyInput = "#hobbies-checkbox-2";
+  musicHobbyInput = "#hobbies-checkbox-3";
 
   async navigate() {
     await this.goto(this.runtime.urls.practiceFormUrl);
@@ -59,7 +62,22 @@ export class PracticeFormPage extends PlaywrightActions {
   }
 
   async selectHobby(hobby: string) {
-    await this.click(`//label[text()='${hobby}']`);
+    const normalizedHobby = hobby.toLowerCase().trim();
+
+    const hobbySelectorMap: Record<string, string> = {
+      sports: this.sportsHobbyInput,
+      reading: this.readingHobbyInput,
+      music: this.musicHobbyInput,
+    };
+
+    const selector = hobbySelectorMap[normalizedHobby];
+
+    if (!selector) {
+      throw new Error(`Unsupported hobby value: '${hobby}'. Supported values: Sports, Reading, Music.`);
+    }
+
+    await this.page.locator(selector).scrollIntoViewIfNeeded();
+    await this.page.locator(selector).check({ force: true });
   }
 
   async uploadPicture(filePath: string) {
