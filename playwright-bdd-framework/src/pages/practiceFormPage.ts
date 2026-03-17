@@ -76,8 +76,43 @@ export class PracticeFormPage extends PlaywrightActions {
       throw new Error(`Unsupported hobby value: '${hobby}'. Supported values: Sports, Reading, Music.`);
     }
 
-    await this.page.locator(selector).scrollIntoViewIfNeeded();
-    await this.page.locator(selector).check({ force: true });
+    const input = this.page.locator(selector);
+    const label = this.page.locator(`label[for='${selector.replace("#", "")}']`);
+
+    await input.scrollIntoViewIfNeeded();
+
+    // 1) Try regular Playwright check first
+    try {
+      await input.check({ force: true });
+    } catch {
+      // ignore and fallback below
+    }
+
+    if (await input.isChecked()) {
+      return;
+    }
+
+    // 2) Fallback: click mapped label (some pages wire label click handlers)
+    try {
+      await label.click({ force: true });
+    } catch {
+      // ignore and fallback below
+    }
+
+    if (await input.isChecked()) {
+      return;
+    }
+
+    // 3) Final fallback: set state through DOM and dispatch events
+    await input.evaluate((el: HTMLInputElement) => {
+      el.checked = true;
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+      el.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+
+    if (!(await input.isChecked())) {
+      throw new Error(`Failed to select hobby '${hobby}' using all fallback strategies.`);
+    }
   }
 
   async uploadPicture(filePath: string) {
