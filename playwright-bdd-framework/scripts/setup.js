@@ -74,20 +74,44 @@ function checkJava() {
 }
 
 function installPlaywrightBrowsers() {
-  // Try `npx playwright install --with-deps` first (installs OS deps on Linux/CI)
-  // Falls back to `npx playwright install` if --with-deps fails
+  if (process.env.SKIP_PLAYWRIGHT_INSTALL === "true") {
+    console.log("\n=== Install Playwright browsers ===");
+    console.log("ℹ️  SKIP_PLAYWRIGHT_INSTALL=true, skipping browser download.");
+    return;
+  }
+
+  // Browser targets:
+  // - PLAYWRIGHT_INSTALL_BROWSERS="chromium firefox" (or comma-separated) to control installs
+  // - In CI, default to chromium for faster and more reliable agent setup
+  const targetInput = (process.env.PLAYWRIGHT_INSTALL_BROWSERS || "").trim();
+  const browserTargets = targetInput
+    ? targetInput.split(/[\s,]+/).filter(Boolean)
+    : process.env.CI === "true"
+      ? ["chromium"]
+      : [];
+
+  const installArgs = ["playwright", "install", ...browserTargets];
+
+  // Try `--with-deps` only on non-Windows hosts (Linux/macOS).
+  // On Windows this option is not applicable and causes unnecessary failures.
   const npxCmd = isWindows ? "npx.cmd" : "npx";
 
   console.log("\n=== Install Playwright browsers ===");
-  const result = spawnSync(npxCmd, ["playwright", "install", "--with-deps"], {
+  const primaryArgs = isWindows ? installArgs : [...installArgs, "--with-deps"];
+  const result = spawnSync(npxCmd, primaryArgs, {
     cwd: frameworkRoot,
     stdio: "inherit",
     shell: false
   });
 
   if (result.status !== 0) {
-    console.warn("⚠️  --with-deps failed (may need admin/sudo). Retrying without --with-deps...");
-    const fallback = spawnSync(npxCmd, ["playwright", "install"], {
+    if (!isWindows) {
+      console.warn("⚠️  --with-deps failed (may need admin/sudo). Retrying without --with-deps...");
+    } else {
+      console.warn("⚠️  Playwright install failed on first attempt. Retrying once...");
+    }
+
+    const fallback = spawnSync(npxCmd, installArgs, {
       cwd: frameworkRoot,
       stdio: "inherit",
       shell: false
