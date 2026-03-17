@@ -36,6 +36,8 @@ pipeline {
     CI = 'true'
     BROWSER = 'chromium'
     HEADLESS = 'true'
+    PRACTICE_FORM_URL = 'https://demoqa.com/automation-practice-form'
+    BASIC_CONTROLS_URL = 'https://www.hyrtutorials.com/p/basic-controls.html'
     PLAYWRIGHT_INSTALL_BROWSERS = 'chromium'
     PLAYWRIGHT_BROWSERS_PATH = '0'
     SKIP_PLAYWRIGHT_INSTALL = 'true'
