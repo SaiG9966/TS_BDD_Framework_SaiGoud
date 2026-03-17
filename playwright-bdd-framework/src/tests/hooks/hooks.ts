@@ -25,6 +25,8 @@ const isHeadedEnvironmentError = (message: string) =>
 const isPageClosedError = (message: string) =>
   /target page, context or browser has been closed|page has been closed/i.test(message);
 
+const isWindows = process.platform === "win32";
+
 BeforeAll(async function () {
   const launcher = browserFactory[runtimeConfig.browser] ?? chromium;
 
@@ -43,6 +45,26 @@ BeforeAll(async function () {
     const message = error instanceof Error ? error.message : String(error);
 
     if (isMissingBrowserBinaryError(message)) {
+      if (isWindows && runtimeConfig.browser === "chromium") {
+        try {
+          console.warn(
+            "[Browser Setup Warning] Playwright Chromium binary missing. Retrying with system Microsoft Edge channel."
+          );
+          sharedBrowser = await chromium.launch({ ...launchOptions, channel: "msedge" });
+          return;
+        } catch {
+          try {
+            console.warn(
+              "[Browser Setup Warning] Edge channel launch failed. Retrying with system Chrome channel."
+            );
+            sharedBrowser = await chromium.launch({ ...launchOptions, channel: "chrome" });
+            return;
+          } catch {
+            // fall through to final error below
+          }
+        }
+      }
+
       throw new Error(
         `[Browser Setup Error] Playwright browser binary is missing for '${runtimeConfig.browser}'. Run: npx playwright install ${runtimeConfig.browser}`
       );

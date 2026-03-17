@@ -121,7 +121,17 @@ try {
 
   runNpm(["install"], frameworkRoot, "Install framework dependencies");
 
-  installPlaywrightBrowsers();
+  try {
+    installPlaywrightBrowsers();
+  } catch (error) {
+    const isCI = process.env.CI === "true";
+    if (!isCI) {
+      throw error;
+    }
+
+    console.warn(`\n⚠️  Playwright browser install failed in CI: ${error.message}`);
+    console.warn("   Continuing CI setup. Test runtime will try system browser fallback (msedge/chrome on Windows).");
+  }
 
   ensureEnvFile();
 

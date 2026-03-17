@@ -36,6 +36,7 @@ pipeline {
     CI = 'true'
     PLAYWRIGHT_INSTALL_BROWSERS = 'chromium'
     PLAYWRIGHT_BROWSERS_PATH = '0'
+    SKIP_PLAYWRIGHT_INSTALL = 'true'
   }
 
   stages {
