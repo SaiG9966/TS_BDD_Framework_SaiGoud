@@ -17,7 +17,7 @@
     "precucumber:report:generate": "npm run identity",
     "precucumber:report:open": "npm run identity",
     "test:raw": "cucumber-js --config src/config/cucumber.cjs",
-    "test": "npm run test:raw",
+    "test": "npm run test:raw --",
     "test:one": "node src/utils/runSingleTest.js",
     "test:smoke": "cross-env TAGS=@smoke npm run test:raw",
     "test:regression": "cross-env TAGS=@regression npm run test:raw",
