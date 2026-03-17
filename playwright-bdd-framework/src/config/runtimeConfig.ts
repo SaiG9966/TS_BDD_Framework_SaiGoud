@@ -6,9 +6,22 @@ import { z } from "zod";
 const boolTrue = (v?: string) => !["false", "0", "no", "n", "off"].includes((v ?? "true").toLowerCase());
 const boolFlag = (v?: string) => ["true", "1", "yes", "y", "on"].includes((v ?? "").toLowerCase());
 const trimmed = (v?: string) => (v ?? "").trim();
+const normalizeBrowser = (v?: string) => {
+  const value = trimmed(v).toLowerCase();
+  if (!value) return "chromium";
+
+  // Accept common aliases often used by CI/browser tools
+  if (["chrome", "msedge", "edge"].includes(value)) return "chromium";
+
+  return value;
+};
 
 const envSchema = z.object({
-  BROWSER: z.enum(["chromium", "firefox", "webkit"]).default("chromium"),
+  BROWSER: z
+    .string()
+    .optional()
+    .transform(normalizeBrowser)
+    .pipe(z.enum(["chromium", "firefox", "webkit"])),
   HEADLESS: z.string().optional().transform(boolTrue),
   MAXIMIZE_BROWSER: z.string().optional().transform(boolFlag),
   SLOW_MO: z.coerce.number().nonnegative().default(0),

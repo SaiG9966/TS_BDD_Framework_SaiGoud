@@ -34,6 +34,7 @@ pipeline {
   environment {
     FRAMEWORK_DIR = 'playwright-bdd-framework'
     CI = 'true'
+    BROWSER = 'chromium'
     PLAYWRIGHT_INSTALL_BROWSERS = 'chromium'
     PLAYWRIGHT_BROWSERS_PATH = '0'
     SKIP_PLAYWRIGHT_INSTALL = 'true'
