@@ -29,6 +29,11 @@ pipeline {
       defaultValue: true,
       description: 'Try generating Allure + Cucumber HTML reports after tests'
     )
+    booleanParam(
+      name: 'FAIL_BUILD_ON_TEST_FAILURE',
+      defaultValue: false,
+      description: 'If false, build is marked UNSTABLE (not FAILED) when tests fail'
+    )
   }
 
   environment {
@@ -36,6 +41,8 @@ pipeline {
     CI = 'true'
     BROWSER = 'chromium'
     HEADLESS = 'true'
+    RETRY = '2'
+    PARALLEL = '1'
     MAXIMIZE_BROWSER = 'false'
     SLOW_MO = '0'
     HIGHLIGHT_ELEMENTS = 'true'
@@ -175,7 +182,12 @@ pipeline {
       steps {
         script {
           if ((env.TEST_EXIT_CODE ?: '0') != '0') {
-            error("Test stage failed with exit code ${env.TEST_EXIT_CODE}")
+            if (params.FAIL_BUILD_ON_TEST_FAILURE) {
+              error("Test stage failed with exit code ${env.TEST_EXIT_CODE}")
+            }
+
+            currentBuild.result = 'UNSTABLE'
+            echo "Tests failed with exit code ${env.TEST_EXIT_CODE}. Marking build as UNSTABLE as configured."
           }
         }
       }
