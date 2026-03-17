@@ -90,7 +90,11 @@ When("user selects hobby {string}", async function (this: CustomWorld, arg1: str
 });
 
 When("user uploads picture", async function (this: CustomWorld) {
-  const picturePath = path.resolve(process.cwd(), "C:\\Users\\saite\\Desktop\\3135715.png");
+  const configuredPath = process.env.PRACTICE_FORM_PICTURE;
+  const picturePath = configuredPath
+    ? path.resolve(process.cwd(), configuredPath)
+    : path.resolve(process.cwd(), "picture.png");
+
   await formPage.uploadPicture(picturePath);
 });
 
