@@ -54,6 +54,42 @@ npm run test:report
 
 ---
 
+## Jenkins CI/CD (Direct Job Execution)
+
+Use the root pipeline file [../Jenkinsfile](../Jenkinsfile) for Jenkins integration.
+
+### Pipeline stages
+
+1. Checkout
+2. Tooling check (Node/npm/Java)
+3. Setup (`npm run setup`)
+4. Test execution (parameterized script)
+5. Report generation (non-blocking)
+6. Artifact archive
+
+### Run from Jenkins UI
+
+1. Create a **Pipeline** job
+2. Select **Pipeline script from SCM**
+3. Use Git repo URL and `main` branch
+4. Set **Script Path** to `Jenkinsfile`
+5. Click **Build with Parameters**
+
+### Parameters
+
+- `TEST_COMMAND`: choose test profile (`test`, `test:smoke`, `test:regression`, etc.)
+- `EXTRA_ARGS`: optional args passed after `--`
+- `RUN_SETUP`: install dependencies + Playwright browsers before run
+- `GENERATE_REPORTS`: attempt `report:generate` and `cucumber:report:generate`
+
+### Notes
+
+- Java 11+ is needed for Allure HTML generation
+- `npm run setup` is already cross-platform and suitable for Jenkins agents
+- All artifacts are archived from `allure-results`, `allure-report`, `reports`, and `test-results`
+
+---
+
 ## Environment
 
 Set values in `.env` only (keep `.env.example` generic):
