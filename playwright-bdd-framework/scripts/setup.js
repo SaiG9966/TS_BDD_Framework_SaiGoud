@@ -6,17 +6,22 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const frameworkRoot = path.resolve(__dirname, "..");
-const repoRoot = frameworkRoot; // In standalone mode, they are the same
 
-const npmCli = process.env.npm_execpath;
+// Resolve npm command: prefer npm_execpath (set by npm run), fallback to "npm"
+const npmCli = process.env.npm_execpath || null;
+const isWindows = process.platform === "win32";
 
 function run(command, args, cwd, title) {
   console.log(`\n=== ${title} ===`);
   const result = spawnSync(command, args, {
     cwd,
     stdio: "inherit",
-    shell: false
+    shell: true  // shell:true ensures npm/node are found on PATH in all environments (VS Code, CI, editors)
   });
+
+  if (result.error) {
+    throw new Error(`${title} failed to start: ${result.error.message}`);
+  }
 
   if (result.status !== 0) {
     throw new Error(`${title} failed with exit code ${result.status ?? 1}`);
@@ -24,11 +29,14 @@ function run(command, args, cwd, title) {
 }
 
 function runNpm(args, cwd, title) {
-  if (!npmCli) {
-    throw new Error("npm runtime metadata not found. Run setup with: npm run setup");
+  if (npmCli) {
+    // Running via `npm run setup` — use node + npm_execpath for reliability
+    run(process.execPath, [npmCli, ...args], cwd, title);
+  } else {
+    // Fallback: run npm directly (works in VS Code terminals, CI, direct invocations)
+    const npmCmd = isWindows ? "npm.cmd" : "npm";
+    run(npmCmd, args, cwd, title);
   }
-
-  run(process.execPath, [npmCli, ...args], cwd, title);
 }
 
 function ensureEnvFile() {
@@ -42,39 +50,70 @@ function ensureEnvFile() {
 
   if (!fs.existsSync(envPath)) {
     fs.copyFileSync(examplePath, envPath);
-    console.log("Created playwright-bdd-framework/.env from .env.example");
+    console.log("✅ Created .env from .env.example");
   } else {
-    console.log("playwright-bdd-framework/.env already exists. Keeping current values.");
+    console.log("ℹ️  .env already exists — keeping current values.");
   }
 }
 
 function checkJava() {
   const result = spawnSync("java", ["-version"], {
-    cwd: repoRoot,
+    cwd: frameworkRoot,
     stdio: "pipe",
-    shell: false
+    shell: true
   });
 
   if (result.status !== 0) {
-    console.warn("\n[Warning] Java is not available in PATH. Allure report commands need Java.");
-    console.warn("Install Java 11+ and reopen terminal to use report/open-report commands.\n");
-    return;
+    console.warn("\n⚠️  [Warning] Java is not available in PATH.");
+    console.warn("   Allure report commands need Java 11+.");
+    console.warn("   Install Java and reopen your terminal to enable: npm run report\n");
+  } else {
+    console.log("✅ Java detected (required for Allure report generation).");
   }
+}
 
-  console.log("Java detected (required for Allure report generation).");
+function installPlaywrightBrowsers() {
+  // Try `npx playwright install --with-deps` first (installs OS deps on Linux/CI)
+  // Falls back to `npx playwright install` if --with-deps fails
+  const npxCmd = isWindows ? "npx.cmd" : "npx";
+
+  console.log("\n=== Install Playwright browsers ===");
+  const result = spawnSync(npxCmd, ["playwright", "install", "--with-deps"], {
+    cwd: frameworkRoot,
+    stdio: "inherit",
+    shell: true
+  });
+
+  if (result.status !== 0) {
+    console.warn("⚠️  --with-deps failed (may need admin/sudo). Retrying without --with-deps...");
+    const fallback = spawnSync(npxCmd, ["playwright", "install"], {
+      cwd: frameworkRoot,
+      stdio: "inherit",
+      shell: true
+    });
+    if (fallback.status !== 0) {
+      throw new Error(`Playwright browser installation failed with exit code ${fallback.status ?? 1}`);
+    }
+  }
 }
 
 try {
   checkJava();
-  console.log("\nSkipping root install inside setup script (avoids npm self-lock conflicts).");
+
   runNpm(["install"], frameworkRoot, "Install framework dependencies");
-  runNpm(["exec", "playwright", "install"], frameworkRoot, "Install Playwright browsers");
+
+  installPlaywrightBrowsers();
+
   ensureEnvFile();
 
-  console.log("\n✅ Setup completed.");
-  console.log("Run tests with: npm run test");
-  console.log("Run report with: npm run report");
+  console.log("\n✅ Setup completed successfully!");
+  console.log("─────────────────────────────────────");
+  console.log("  Run tests  :  npm run test");
+  console.log("  Single test:  npm run test:one");
+  console.log("  Reports    :  npm run test:report");
+  console.log("─────────────────────────────────────\n");
 } catch (error) {
   console.error(`\n❌ Setup failed: ${error.message}`);
+  console.error("   Try running manually: cd playwright-bdd-framework && npm install");
   process.exit(1);
 }
